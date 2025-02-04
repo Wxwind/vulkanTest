@@ -5,7 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 set(GLFW_DIR ${LIB_DIR}/glfw)
-set(VULKAN_DIR $ENV{HOME}/VulkanSDK/1.4.304.0/)
+if (APPLE)
+    set(VULKAN_DIR $ENV{HOME}/VulkanSDK/1.4.304.0/)
+elseif (WIN32)
+    set(VULKAN_DIR C:/VulkanSDK/1.4.304.0)
+endif ()
 
 # 直接运行exe报错找不到libstdc++.dll和winpthread.dll
 if (win32)
@@ -17,18 +21,6 @@ add_executable(vulkanTest src/main.cpp
         src/stb_image.h
         src/official_camera.h
 )
-
-if (APPLE)
-    # 动态链接, 需要手动把libglfw.3.dylib拷贝到输出目录下，
-
-
-elseif (WIN32)
-    # 动态链接, 需要手动把glfw3.dll拷贝到输出目录下，IMPORTED_IMPLIB_DEBUG用于设置动态库，IMPORTED_LOCATION用于设置静态库
-    add_library(glfw SHARED IMPORTED)
-    SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_IMPLIB "${GLFW_DIR}/lib-mingw-w64/libglfw3dll.a")
-    # 静态链接
-    # SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION "${GLFW_DIR}/lib-mingw-w64/libglfw3.a")
-endif ()
 
 # 添加 GLFW3 头文件
 target_include_directories(vulkanTest PRIVATE "${GLFW_DIR}/include")
@@ -44,8 +36,10 @@ if (APPLE)
 
     target_link_libraries(vulkanTest PRIVATE "${GLFW_DIR}/lib-macos-arm64/libglfw.3.dylib")
 elseif (WIN32)
-    target_link_libraries(vulkanTest glfw)
-    # 也可以通过target_link_libraries直接链接静态库或者动态库
-    #  target_link_libraries(vulkanTest "${GLFW_DIR}/lib-mingw-w64/libglfw3dll.a")
+    target_include_directories(vulkanTest PRIVATE "${VULKAN_DIR}/Include")
+    target_link_directories(vulkanTest PRIVATE ${VULKAN_DIR}/Lib)
+
+    # 通过target_link_libraries直接链接静态库或者动态库，动态库需要复制glfw3.dll到输出目录下
+    target_link_libraries(vulkanTest "${GLFW_DIR}/lib-mingw-w64/libglfw3dll.a")
 endif ()
 

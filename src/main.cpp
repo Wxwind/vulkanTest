@@ -31,7 +31,7 @@ private:
     }
 
     void initVulkan() {
-
+        createInstance();
     }
 
     void mainLoop() {
