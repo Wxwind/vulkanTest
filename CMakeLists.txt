@@ -38,6 +38,8 @@ if (APPLE)
 elseif (WIN32)
     target_include_directories(vulkanTest PRIVATE "${VULKAN_DIR}/Include")
     target_link_directories(vulkanTest PRIVATE ${VULKAN_DIR}/Lib)
+    # 需要手动把 Lib/vulkan-1.lib 拷贝到输出目录下
+    target_link_libraries(vulkanTest ${VULKAN_DIR}/Lib/vulkan-1.lib)
 
     # 通过target_link_libraries直接链接静态库或者动态库，动态库需要复制glfw3.dll到输出目录下
     target_link_libraries(vulkanTest "${GLFW_DIR}/lib-mingw-w64/libglfw3dll.a")
