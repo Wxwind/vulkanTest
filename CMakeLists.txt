@@ -32,9 +32,12 @@ if (APPLE)
     # 链接 GLFW Vulkan
     # 需要手动把vulkansdk/macOS/lib 的 libvulkan.1.dylib 和 libvulkan.1.x.xx.dylib 拷贝到输出目录下
     target_include_directories(vulkanTest PRIVATE "${VULKAN_DIR}/macOS/include")
-    target_link_directories(vulkanTest PRIVATE ${VULKAN_DIR}/macOS/lib)
+    # 添加到搜索目录
+    target_link_directories(vulkanTest PRIVATE "${VULKAN_DIR}/macOS/lib")
+    target_link_libraries(vulkanTest libvulkan.1.dylib)
+    target_link_libraries(vulkanTest libvulkan.1.4.304.dylib)
 
-    target_link_libraries(vulkanTest PRIVATE "${GLFW_DIR}/lib-macos-arm64/libglfw.3.dylib")
+    target_link_libraries(vulkanTest "${GLFW_DIR}/lib-macos-arm64/libglfw.3.dylib")
 elseif (WIN32)
     target_include_directories(vulkanTest PRIVATE "${VULKAN_DIR}/Include")
     target_link_directories(vulkanTest PRIVATE ${VULKAN_DIR}/Lib)
