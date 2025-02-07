@@ -8,13 +8,16 @@
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan.h>
+#include <algorithm>
+#include <optional>
+#include <limits>
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
 #if __APPLE__
 #define isMac true
-#elif
+#else
 #define isMac false
 #endif
 
@@ -628,8 +631,8 @@ private:
 
   void createGraphicsPipeline()
   {
-    auto vertShaderCode = readFile("shaders/base.vert.spv");
-    auto fragShaderCode = readFile("shaders/base.frag.spv");
+    auto vertShaderCode = readFile("../src/shaders/base.vert.spv");
+    auto fragShaderCode = readFile("../src/shaders/base.frag.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
