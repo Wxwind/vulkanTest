@@ -37,6 +37,7 @@ if (APPLE)
     target_link_libraries(vulkanTest libvulkan.1.dylib)
     target_link_libraries(vulkanTest libvulkan.1.4.304.dylib)
 
+    # 通过target_link_libraries直接链接静态库或者动态库，动态库需要复制libglfw.3.dylib到输出目录下
     target_link_libraries(vulkanTest "${GLFW_DIR}/lib-macos-arm64/libglfw.3.dylib")
 elseif (WIN32)
     target_include_directories(vulkanTest PRIVATE "${VULKAN_DIR}/Include")
