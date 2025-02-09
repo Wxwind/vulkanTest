@@ -168,6 +168,10 @@ private:
     vkResetFences(device, 1, &inFlightFence);
 
     uint32_t imageIndex;
+      // The presentation engine may not have finished reading from the image at the time it is acquired,
+      // so the application must usesemaphoreand/orfenceto ensure that the image layout and contents are not modified
+      // until the presentation engine reads have completed.
+      // Image 可能还正在被读取，此时写入会破坏数据，因此必须要使用 semaphore 或 fence 保证读取完毕后再开始写入操作，这里使用imageAvailableSemaphore
     vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
     vkResetCommandBuffer(commandBuffer, /*VkCommandBufferResetFlagBits*/ 0);
@@ -750,6 +754,14 @@ private:
     // 现在的subpass
     dependency.dstSubpass = 0;
     // 在继续dstSubpass前srcSubpass所要完成的阶段
+    // 知乎解释(https://zhuanlan.zhihu.com/p/350483554)： srcStageMask 限定了layout transition要等待先前所有COLOR_ATTACHMENT_OUTPUT 阶段的 operations 执行后才会发生（这不仅有队列中上一帧渲染 commands 包含的 operations，还有最重要的 semaphore waiting operation）。
+    // 个人理解: pipeline和vkAcquireNextImageKHR是并行执行的。在 render pass 开始和结束各有一次image layout transitions
+    // 然而开始阶段的layout转换时我们还没有请求image，所以要么自己手动指定dependency进行转换(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR -> VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)的时机，否则
+    // vulkan the driver will inject a dummy subpass dependency for you with srcStageMask = TOP_OF_PIPE_BIT. This is not what you want since it’s almost certainly going to be a race condition.
+    // (https://themaister.net/blog/2019/08/14/yet-another-blog-explaining-vulkan-synchronization/ 的External subpass dependencies小节)
+    // 要么如官方教程所讲让VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT stage就去等待imageAvailableSemaphore
+    // We need to wait for the swap chain to finish reading from the image before we can access it.
+    // This can be accomplished by waiting on the color attachment output stage itself.
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.srcAccessMask = 0;
     // The next two fields specify the operations to wait on and the stages in which these operations occur.
