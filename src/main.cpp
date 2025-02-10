@@ -756,7 +756,7 @@ private:
     // 在继续dstSubpass前srcSubpass所要完成的阶段
     // 知乎解释(https://zhuanlan.zhihu.com/p/350483554)： srcStageMask 限定了layout transition要等待先前所有COLOR_ATTACHMENT_OUTPUT 阶段的 operations 执行后才会发生（这不仅有队列中上一帧渲染 commands 包含的 operations，还有最重要的 semaphore waiting operation）。
     // 个人理解: pipeline和vkAcquireNextImageKHR是并行执行的。在 render pass 开始和结束各有一次image layout transitions
-    // 然而开始阶段的layout转换时我们还没有请求image，所以要么自己手动指定dependency进行转换(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR -> VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)的时机，否则
+    // 然而开始阶段的layout转换时我们还没有请求完image，所以要么自己手动指定dependency进行转换(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR -> VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)的时机，否则
     // vulkan the driver will inject a dummy subpass dependency for you with srcStageMask = TOP_OF_PIPE_BIT. This is not what you want since it’s almost certainly going to be a race condition.
     // (https://themaister.net/blog/2019/08/14/yet-another-blog-explaining-vulkan-synchronization/ 的External subpass dependencies小节)
     // (https://www.reddit.com/r/vulkan/comments/701qqz/vk_subpass_external_presentation_question/)
